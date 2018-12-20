@@ -5,10 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 
-abstract class BaseActivity : AppCompatActivity(){
+abstract class BaseActivity : AppCompatActivity() {
 
-    fun setupToolbar(toolBar: Toolbar?, title: Int, icon: Int,
-                     displayHome: Boolean = true) {
+    fun setupToolbar(
+        toolBar: Toolbar?,
+        title: Int,
+        icon: Int,
+        displayHome: Boolean = true
+    ) {
 
         toolBar?.let { toolbar ->
             setSupportActionBar(toolBar)
@@ -30,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity(){
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == android.R.id.home)
+        if (item?.itemId == android.R.id.home)
             finish()
 
         return super.onOptionsItemSelected(item)

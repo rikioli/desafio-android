@@ -1,4 +1,4 @@
-package br.com.henriqueoliveira.desafioandroidconcrete.helpers
+package br.com.henriqueoliveira.desafioandroidconcrete.view
 
 abstract class EndlessRecyclerViewScrollListener : androidx.recyclerview.widget.RecyclerView.OnScrollListener {
     // The minimum amount of items to have below your current scroll position
@@ -106,5 +106,4 @@ abstract class EndlessRecyclerViewScrollListener : androidx.recyclerview.widget.
 
     // Defines the process for actually loading more data based on page
     abstract fun onLoadMore(totalItemsCount: Int, view: androidx.recyclerview.widget.RecyclerView)
-
 }

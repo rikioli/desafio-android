@@ -8,6 +8,5 @@ import org.koin.dsl.module.module
 val androidModule = module {
 
     viewModel { RepositoryListViewModel(get()) }
-    single{ RepositoryDataSource(get()) }
-
+    single { RepositoryDataSource(get()) }
 }

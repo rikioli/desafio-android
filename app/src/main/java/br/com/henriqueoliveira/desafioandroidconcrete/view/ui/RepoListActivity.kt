@@ -5,23 +5,24 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.henriqueoliveira.desafioandroidconcrete.R
-import br.com.henriqueoliveira.desafioandroidconcrete.helpers.EndlessRecyclerViewScrollListener
-import br.com.henriqueoliveira.desafioandroidconcrete.helpers.launchActivity
-import br.com.henriqueoliveira.desafioandroidconcrete.helpers.show
 import br.com.henriqueoliveira.desafioandroidconcrete.helpers.showSnack
-import br.com.henriqueoliveira.desafioandroidconcrete.service.models.Repository
+import br.com.henriqueoliveira.desafioandroidconcrete.service.model.Repository
 import br.com.henriqueoliveira.desafioandroidconcrete.service.repository.Resource
+import br.com.henriqueoliveira.desafioandroidconcrete.view.EndlessRecyclerViewScrollListener
 import br.com.henriqueoliveira.desafioandroidconcrete.view.adapter.RepositoriesAdapter
 import br.com.henriqueoliveira.desafioandroidconcrete.viewmodel.RepositoryListViewModel
 import kotlinx.android.synthetic.main.activity_repo_list.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
 
 class RepoListActivity : BaseActivity() {
 
     val repoViewModel by viewModel<RepositoryListViewModel>()
     private lateinit var adapter: RepositoriesAdapter
     lateinit var layoutManager: LinearLayoutManager
+
+    companion object {
+        var idlingResourceLast = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +34,6 @@ class RepoListActivity : BaseActivity() {
         configRecycler()
         handleViewModel()
         setListeners()
-
     }
 
     private fun configRecycler() {
@@ -54,45 +54,43 @@ class RepoListActivity : BaseActivity() {
         swipeRefreshLayout.setOnRefreshListener {
             repoViewModel.refreshList()
         }
-
     }
 
     private fun handleViewModel() {
 
-        repoViewModel.isLoading.observe(this, Observer {
-            it?.let { swipeRefreshLayout.isRefreshing = it }
+        repoViewModel.isLoading.observe(this, Observer { isLoading ->
+            isLoading?.let { swipeRefreshLayout.isRefreshing = it }
         })
 
-
-        repoViewModel.state.observe(this, Observer {
-            when (it.status) {
+        repoViewModel.state.observe(this, Observer { stateRepo ->
+            when (stateRepo.status) {
 
                 Resource.RequestStatus.SUCCESS -> {
-                    it.data?.let { adapter.updateList(it) }
+                    stateRepo.data?.let {
+                        updateAdapter(it)
+                        idlingResourceLast = 0
+                    }
                 }
                 Resource.RequestStatus.ERROR -> {
-                    it.data?.let { adapter.updateList(it) }
-                    it.message?.let { showSnack(it) }
+                    stateRepo.data?.let { adapter.updateList(it) }
+                    stateRepo.message?.let { showSnack(it) }
+                    idlingResourceLast = 0
                 }
-                Resource.RequestStatus.LOADING ->  swipeRefreshLayout.isRefreshing = true
+                Resource.RequestStatus.LOADING -> swipeRefreshLayout.isRefreshing = true
             }
         })
-
 
         recyclerRepositories.addOnScrollListener(object : EndlessRecyclerViewScrollListener(LinearLayoutManager(this)) {
             override fun onLoadMore(totalItemsCount: Int, view: RecyclerView) {
                 repoViewModel.loadNextPage()
             }
         })
-
     }
 
-    private fun onRepositoryItemClick(repository: Repository) {
-        val extras = Bundle()
-        extras.putString(PullRequestActivity.EXTRA_REPOSITORY_NAME,  repository.repoName)
-        extras.putString(PullRequestActivity.EXTRA_REPOSITORY_OWNER, repository.owner.login)
-        launchActivity<PullRequestActivity>(extras)
+    fun updateAdapter(items: List<Repository>) {
+        adapter.updateList(items)
     }
 
-
+    private fun onRepositoryItemClick(repository: Repository) =
+            startActivity(PullRequestActivity.newIntent(repository = repository, context = this))
 }

@@ -3,20 +3,23 @@
 buildscript {
     ext {
         koin_version = '1.0.1'
-        ext.kotlin_version = '1.2.50'
+        ext.kotlin_version = '1.2.51'
         androidx = "2.0.0"
         retrofitVersion = '2.3.0'
         ext.glideVersion = '4.8.0'
+        mockitoVersion = '2.12.0'
         mockitoKotlinVersion = '1.5.0'
     }
     repositories {
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         google()
         jcenter()
     }
     dependencies {
         //noinspection GradleDependency
-        classpath 'com.android.tools.build:gradle:3.2.0-beta03'
+        classpath 'com.android.tools.build:gradle:3.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'org.jacoco:org.jacoco.core:0.8.3-SNAPSHOT'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -27,6 +30,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
     }
 }
 

@@ -1,8 +1,7 @@
 package br.com.henriqueoliveira.desafioandroidconcrete.service.repository
 
-import br.com.henriqueoliveira.desafioandroidconcrete.service.models.PullRequest
-import br.com.henriqueoliveira.desafioandroidconcrete.service.models.Repository
-import br.com.henriqueoliveira.desafioandroidconcrete.service.models.ServerResponse
+import br.com.henriqueoliveira.desafioandroidconcrete.service.model.PullRequest
+import br.com.henriqueoliveira.desafioandroidconcrete.service.model.ServerResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -15,7 +14,4 @@ interface GitHubService {
 
     @GET("repos/{owner}/{repository}/pulls")
     fun getPullRequests(@Path("owner") owner: String, @Path("repository") repository: String): Call<List<PullRequest>>
-
-
-
 }

@@ -2,4 +2,5 @@
     <string name="app_name">Repositories</string>
     <string name="invalid_repositoryId">Invalid repository</string>
     <string name="pull_requests">Pull Requests</string>
+    <string name="error_unexpected">An unexpected error has occurred</string>
 </resources>

@@ -6,6 +6,41 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+apply from: "../ktlint.gradle"
+
+apply plugin: 'jacoco'
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = [ '**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*' ]
+    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def mainSrc = "$project.projectDir/src/main/kotlin"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    executionData = fileTree(dir: project.buildDir, includes: [
+            'jacoco/testDebugUnitTest.exec', 'outputs/code-coverage/connected/*coverage.ec'
+    ])
+}
+
+ext {
+    coverageSourceDirs = 'src/test/java'
+    reportsDir = file("$buildDir/reports")
+}
+
+jacoco {
+    toolVersion = '0.8.3-SNAPSHOT'
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -32,7 +67,7 @@ android {
             storePassword '123123'
         }
 
-        release {
+        debug {
             keyAlias 'debug'
             keyPassword '456456'
             storeFile file("../keys/debug.jks")
@@ -50,14 +85,17 @@ android {
 
         debug {
             debuggable true
+            testCoverageEnabled true
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
             buildConfigField "String", "BASE_URL", '"https://api.github.com/"'
         }
+
     }
 }
 
 dependencies {
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.0'
@@ -67,10 +105,32 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    implementation 'com.android.support.test.espresso:espresso-idling-resource:3.0.2'
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-androidx-scope:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     implementation 'com.github.bumptech.glide:glide:4.8.0'
+    implementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
     annotationProcessor 'androidx.annotation:annotation:1.0.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+
+    //Test
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation "com.nhaarman:mockito-kotlin:$mockitoKotlinVersion"
+    testImplementation "org.robolectric:robolectric:3.4.2"
+    testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation 'org.assertj:assertj-core:3.5.2'
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testImplementation "org.koin:koin-test:$koin_version"
+    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.3.0'
+
+    // Interface Test
+    androidTestImplementation "org.koin:koin-test:$koin_version"
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation "com.android.support.test.espresso:espresso-intents:3.0.1"
+    androidTestImplementation("com.android.support.test.espresso:espresso-contrib:3.0.1")
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:3.9.0"
+    androidTestImplementation 'com.jakewharton.espresso:okhttp3-idling-resource:1.0.0'
 }
