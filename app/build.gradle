@@ -34,7 +34,7 @@ ext {
 }
 
 jacoco {
-    toolVersion = '0.8.3-SNAPSHOT'
+    toolVersion = '0.8.4'
 }
 
 tasks.withType(Test) {
